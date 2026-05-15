@@ -2,6 +2,7 @@ package com.example.day1.service;
 
 import com.example.day1.dto.CreateUserRequest;
 import com.example.day1.dto.UpdateUserRequest;
+import com.example.day1.dto.UserResponse;
 import com.example.day1.model.User;
 import com.example.day1.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -13,42 +14,54 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
-
         this.userRepository = userRepository;
     }
 
-    public List<User> getUsers() {
-
-        return userRepository.findAll();
+    public List<UserResponse> getUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public User getUserById(Long id) {
-        return findUserOrThrow(id);
+    public UserResponse getUserById(Long id) {
+        User user = findUserOrThrow(id);
+        return toResponse(user);
     }
 
-    public User createUser(CreateUserRequest request) {
-        userRepository.findByEmail(request.getEmail())
-                .ifPresent(user -> {
-                    throw new RuntimeException("Email already exists");
-                });
+    public List<UserResponse> searchUsersByEmail(String email) {
+        return userRepository.findByEmailContainingIgnoreCase(email)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public UserResponse createUser(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
 
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+        return toResponse(savedUser);
     }
 
-    public User updateUser(Long id, UpdateUserRequest request) {
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
         userRepository.findByEmail(request.getEmail())
                 .filter(user -> !user.getId().equals(id))
                 .ifPresent(user -> {
                     throw new RuntimeException("Email already exists");
                 });
 
-        User updatedUser = new User();
-        updatedUser.setName(request.getName());
-        updatedUser.setEmail(request.getEmail());
-        return userRepository.update(id, updatedUser);
+        User user = findUserOrThrow(id);
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+
+        User savedUser = userRepository.save(user);
+        return toResponse(savedUser);
     }
 
     public void deleteUser(Long id) {
@@ -59,5 +72,14 @@ public class UserService {
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt()
+        );
     }
 }
