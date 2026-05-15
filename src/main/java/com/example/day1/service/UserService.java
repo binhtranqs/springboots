@@ -3,6 +3,8 @@ package com.example.day1.service;
 import com.example.day1.dto.CreateUserRequest;
 import com.example.day1.dto.UpdateUserRequest;
 import com.example.day1.dto.UserResponse;
+import com.example.day1.exception.DuplicateResourceException;
+import com.example.day1.exception.ResourceNotFoundException;
 import com.example.day1.model.User;
 import com.example.day1.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,7 @@ public class UserService {
 
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         User user = new User();
@@ -53,7 +55,7 @@ public class UserService {
         userRepository.findByEmail(request.getEmail())
                 .filter(user -> !user.getId().equals(id))
                 .ifPresent(user -> {
-                    throw new RuntimeException("Email already exists");
+                    throw new DuplicateResourceException("Email already exists");
                 });
 
         User user = findUserOrThrow(id);
@@ -71,7 +73,7 @@ public class UserService {
 
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private UserResponse toResponse(User user) {

@@ -3,6 +3,7 @@ package com.example.day1.service;
 import com.example.day1.dto.CreateProductRequest;
 import com.example.day1.dto.ProductResponse;
 import com.example.day1.dto.UpdateProductRequest;
+import com.example.day1.exception.ResourceNotFoundException;
 import com.example.day1.model.Product;
 import com.example.day1.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class ProductService {
 
     private Product findProductOrThrow(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
 
     private ProductResponse toResponse(Product product) {

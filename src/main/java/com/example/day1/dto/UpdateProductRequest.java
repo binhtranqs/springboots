@@ -1,10 +1,20 @@
 package com.example.day1.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 
 public class UpdateProductRequest {
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be greater than 0")
     private BigDecimal price;
+
+    @NotBlank(message = "Description is required")
     private String description;
 
     public String getName() {

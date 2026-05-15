@@ -4,6 +4,7 @@ import com.example.day1.dto.CreateProductRequest;
 import com.example.day1.dto.ProductResponse;
 import com.example.day1.dto.UpdateProductRequest;
 import com.example.day1.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,14 +39,14 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@RequestBody CreateProductRequest request) {
+    public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
         return productService.createProduct(request);
     }
 
     @PutMapping("/{id}")
     public ProductResponse updateProduct(
             @PathVariable Long id,
-            @RequestBody UpdateProductRequest request
+            @Valid @RequestBody UpdateProductRequest request
     ) {
         return productService.updateProduct(id, request);
     }
