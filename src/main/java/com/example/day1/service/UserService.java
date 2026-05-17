@@ -31,6 +31,13 @@ public class UserService {
         return toResponse(user);
     }
 
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return toResponse(user);
+    }
+
     public List<UserResponse> searchUsersByEmail(String email) {
         return userRepository.findByEmailContainingIgnoreCase(email)
                 .stream()
