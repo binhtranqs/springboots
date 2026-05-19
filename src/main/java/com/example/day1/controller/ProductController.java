@@ -1,6 +1,7 @@
 package com.example.day1.controller;
 
 import com.example.day1.dto.CreateProductRequest;
+import com.example.day1.dto.PageResponse;
 import com.example.day1.dto.ProductResponse;
 import com.example.day1.dto.UpdateProductRequest;
 import com.example.day1.service.ProductService;
@@ -13,10 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -28,8 +28,14 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponse> getProducts() {
-        return productService.getProducts();
+    public PageResponse<ProductResponse> getProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String keyword
+    ) {
+        return productService.getProducts(page, size, sortBy, sortDir, keyword);
     }
 
     @GetMapping("/{id}")
